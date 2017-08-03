@@ -1,0 +1,283 @@
+<!doctype html><html><head>
+	<meta charset=utf-8>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=yes">
+	<title>Aprèn a llegir partitures</title>
+	<script>
+		var solucio=""; //global: string que conté la solució
+
+		//configuració
+		var Conf={
+			clauSol:true,
+			clauFa:false,
+		};
+
+		//biblioteca de sons
+		var Sons={
+			"do"  :new Audio('sons/do.wav'),
+			"re"  :new Audio('sons/re.wav'),
+			"mi"  :new Audio('sons/mi.wav'),
+			"fa"  :new Audio('sons/fa.wav'),
+			"sol" :new Audio('sons/sol.wav'),
+			"la"  :new Audio('sons/la.wav'),
+			"si"  :new Audio('sons/si.wav'),
+			"do2" :new Audio('sons/do2.wav'),
+			"re2" :new Audio('sons/re2.wav'),
+			"mi2" :new Audio('sons/mi2.wav'),
+			"fa2" :new Audio('sons/fa2.wav'),
+			"sol2":new Audio('sons/sol2.wav'),
+			"la2" :new Audio('sons/la2.wav'),
+			"si2" :new Audio('sons/si2.wav'),
+			"do3" :new Audio('sons/do3.wav'),
+		};
+
+		//tria una nota i ensenya-la
+		function notaRandom() {
+			var notes = (function(){
+				if(Conf.clauSol && Conf.clauFa){
+					return document.querySelectorAll('.nota[clau]')
+				}
+				else if(Conf.clauSol && Conf.clauFa==false){
+					return document.querySelectorAll('.nota[clau=sol]')
+				}
+				else if(Conf.clauSol==false && Conf.clauFa){
+					return document.querySelectorAll('.nota[clau=fa]')
+				}
+				else{
+					return false;
+				}
+			})();
+
+			if(notes==false){
+				alert('Activa com a mínim una clau');
+				window.location.reload();
+				return;
+			}
+
+			//Amaga totes les notes
+			var totes=document.querySelectorAll('.nota[clau]');
+			for(var i=0;i<totes.length;i++) totes[i].style.display='none'	
+			
+			//Genera un número aleatori i mostra el dibuix n
+			var n = Math.floor((Math.random()*notes.length));
+			notes[n].style.display='';
+
+			//aquesta funcio retorna un string "solucio" que conté el nom de la nota
+			var solucio = notes[n].getAttribute('nota');
+
+			//reprodueix el so de la nota a endevinar
+			Sons[notes[n].getAttribute('so')].play();
+
+			//necessitem 3 strings per posar a les solucions 
+			var nomsNotes = ['do','re','mi','fa','sol','la','si'];
+			var n = Math.floor((Math.random()*notes.length));
+
+			//randomitza els noms
+			nomsNotes = shuffle(nomsNotes);
+
+			for(var i=1; i<4; i++) {
+				var opcio = nomsNotes.shift();
+				if(opcio!=solucio)
+					document.getElementById('solucio'+i).innerHTML=opcio;
+				else
+					document.getElementById('solucio'+i).innerHTML=nomsNotes.shift();
+			}
+
+			var bona = Math.floor(Math.random()*3+1);
+			document.getElementById('solucio'+bona).innerHTML=solucio;
+
+			//escriu la solucio al span id=solucio
+			document.getElementById('solucio').innerHTML=solucio;
+			
+			//amaga la solucio
+			document.getElementById('divsol').style.display='none';
+
+			return solucio;
+		}
+
+		function shuffle(arr) {
+			//barreja aleatòriament un array
+			var currentIndex = arr.length, temporaryValue, randomIndex ;
+			// mentre queden elements per barrejar...
+			while (0 !== currentIndex) {
+				// Agafa un element dels que queden...
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex -= 1;
+				// i intercanvia amb l'element actual
+				temporaryValue = arr[currentIndex];
+				arr[currentIndex] = arr[randomIndex];
+				arr[randomIndex] = temporaryValue;
+			}
+			return arr;
+		}
+
+		function respon(opcioTriada) {
+			var notaTriada = document.getElementById('solucio'+opcioTriada).innerHTML;
+			if(notaTriada==solucio) {
+				solucio=notaRandom()
+				document.getElementById('puntuacio').innerHTML++
+				document.getElementById('puntuacio_container').style.color='black';
+			}
+			else {
+				document.getElementById('puntuacio').innerHTML=0;
+				document.getElementById('puntuacio_container').style.color='red';
+			}
+		}
+
+		function tecla(event) {
+			var tecla=event.which;
+			//console.log("tecla: "+tecla);
+			switch(tecla) {
+				case 37: case 74: respon(1); break; //esque J
+				case 40: case 75: respon(2); break; //avall K
+				case 39: case 76: respon(3); break; //dreta L
+			}
+		}
+
+		function mostraAmagaSolucio() {
+			if(document.getElementById('divsol').style.display=='none') {
+				document.getElementById('divsol').style.display=''
+			}
+			else {
+				document.getElementById('divsol').style.display='none'
+			}
+			document.getElementById('puntuacio').innerHTML=0;
+		}
+	</script>
+	<style>
+		body {
+			font-family:monospace;
+			text-align:center;
+		}
+		code{
+			background:#eee;
+			display:inline-block;
+			width:20px;
+			text-align:center;
+		}
+		.botonera {
+			display:flex;
+			flex-wrap:wrap;
+			justify-content:center;
+			padding:5px 0;
+		}
+		.botonera button{ 
+			background:#f5f5f5;
+			cursor:pointer;
+			display:block;
+			font-size:40px; 
+			outline:none; 
+			padding:0.5em 0.2em;
+			width:100px;
+			border:1px solid #ccc;
+		}
+		.botonera button:active {
+			box-shadow:inset 0 2px 4px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.05);
+		}
+		.botonera button#solucio1 {border-radius:0.2em 0 0 0.2em; border-right:none }
+		.botonera button#solucio2 {border-right:none }
+		.botonera button#solucio3 {border-radius:0 0.2em 0.2em 0 }
+	</style>
+</head><body onload="solucio=notaRandom()" onkeydown=tecla(event)>
+<h1 onclick=window.location.reload()>Practicar notes partitura</h1>
+
+<!--puntuacio-->
+<div id=puntuacio_container> 
+	Respostes seguides correctes: <span id=puntuacio>0</span> 
+</div>
+
+<!--imatges-->
+<div>
+	<!-- clau de sol -->
+	<img src=sol_01.png nota=do  class=nota clau=sol so=do   style=display:none>
+	<img src=sol_02.png nota=re  class=nota clau=sol so=re   style=display:none>
+	<img src=sol_03.png nota=mi  class=nota clau=sol so=mi   style=display:none>
+	<img src=sol_04.png nota=fa  class=nota clau=sol so=fa   style=display:none>
+	<img src=sol_05.png nota=sol class=nota clau=sol so=sol  style=display:none>
+	<img src=sol_06.png nota=la  class=nota clau=sol so=la   style=display:none>
+	<img src=sol_07.png nota=si  class=nota clau=sol so=si   style=display:none>
+	<img src=sol_08.png nota=do  class=nota clau=sol so=do2  style=display:none>
+	<img src=sol_09.png nota=re  class=nota clau=sol so=re2  style=display:none>
+	<img src=sol_10.png nota=mi  class=nota clau=sol so=mi2  style=display:none>
+	<img src=sol_11.png nota=fa  class=nota clau=sol so=fa2  style=display:none>
+	<img src=sol_12.png nota=sol class=nota clau=sol so=sol2 style=display:none>
+	<img src=sol_13.png nota=la  class=nota clau=sol so=la2  style=display:none>
+	<!-- clau de fa -->
+	<img src=fa_01.png nota=mi  class=nota clau=fa so=mi   style=display:none>
+	<img src=fa_02.png nota=fa  class=nota clau=fa so=fa   style=display:none>
+	<img src=fa_03.png nota=sol class=nota clau=fa so=sol  style=display:none>
+	<img src=fa_04.png nota=la  class=nota clau=fa so=la   style=display:none>
+	<img src=fa_05.png nota=si  class=nota clau=fa so=si   style=display:none>
+	<img src=fa_06.png nota=do  class=nota clau=fa so=do2  style=display:none>
+	<img src=fa_07.png nota=re  class=nota clau=fa so=re2  style=display:none>
+	<img src=fa_08.png nota=mi  class=nota clau=fa so=mi2  style=display:none>
+	<img src=fa_09.png nota=fa  class=nota clau=fa so=fa2  style=display:none>
+	<img src=fa_10.png nota=sol class=nota clau=fa so=sol2 style=display:none>
+	<img src=fa_11.png nota=la  class=nota clau=fa so=la2  style=display:none>
+	<img src=fa_12.png nota=si  class=nota clau=fa so=si2  style=display:none>
+	<img src=fa_13.png nota=do  class=nota clau=fa so=do3  style=display:none>
+</div>
+
+<!--respostes-->
+<div class=botonera>
+	<button id=solucio1 onclick=respon(1)>solució 1</button>
+	<button id=solucio2 onclick=respon(2)>solució 2</button>
+	<button id=solucio3 onclick=respon(3)>solució 3</button>
+</div>
+
+<!--conf-->
+<table style=margin:auto;text-align:left>
+	<tr><td><label> <input type=checkbox checked onclick=Conf.clauSol=!Conf.clauSol> Clau de Sol </label>
+	<tr><td><label> <input type=checkbox         onclick=Conf.clauFa=!Conf.clauFa> Clau de Fa </label>
+</table>
+
+<!--teclat-->
+<div id=teclat>
+	<style>
+		#teclat {
+			display:flex;
+			display:none;
+			justify-content:center;
+			margin-top:30px;
+		}
+		#teclat button{
+			display:block;
+			outline:none;
+			border:none;
+			width:40px;
+			background:white;
+			border:1px solid black;
+			margin-right:-1px;
+		}
+		#teclat button:hover{
+			background:lightgreen;
+		}
+	</style>
+	<button onmouseenter=Sons.do.play()>do</button>
+	<button onmouseenter=Sons.re.play()>re</button>
+	<button onmouseenter=Sons.mi.play()>mi</button>
+	<button onmouseenter=Sons.fa.play()>fa</button>
+	<button onmouseenter=Sons.sol.play()>sol</button>
+	<button onmouseenter=Sons.la.play()>la</button>
+	<button onmouseenter=Sons.si.play()>si</button>
+	<button onmouseenter=Sons.do2.play()>do</button>
+	<button onmouseenter=Sons.re2.play()>re</button>
+	<button onmouseenter=Sons.mi2.play()>mi</button>
+	<button onmouseenter=Sons.fa2.play()>fa</button>
+	<button onmouseenter=Sons.sol2.play()>sol</button>
+	<button onmouseenter=Sons.la2.play()>la</button>
+	<button onmouseenter=Sons.si2.play()>si</button>
+	<button onmouseenter=Sons.do3.play()>do</button>
+</div>
+
+<!--solucio-->
+<div>
+	<div style=margin-top:10px>
+		<button onclick=mostraAmagaSolucio() style="padding:10px 16px;outline:none">
+			Mostra la solució
+			<span style='display:none' id=divsol>: <span id=solucio></span></span>
+		</button>
+	</div>
+</div>
+
+<!--consell-->
+<p><b>Pro:</b> Prova de respondre amb les tecles <code>J</code>, <code>K</code>, <code>L</code></p>
