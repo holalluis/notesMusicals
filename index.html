@@ -3,7 +3,8 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=yes">
 	<title>Aprèn a llegir partitures</title>
 	<script>
-		var solucio=""; //global: string que conté la solució
+		//global: string que conté la solució
+		var solucio=""; 
 
 		//configuració
 		var Conf={
@@ -55,24 +56,22 @@
 
 			//Amaga totes les notes
 			var totes=document.querySelectorAll('.nota[clau]');
-			for(var i=0;i<totes.length;i++) totes[i].style.display='none'	
+			for(var i=0;i<totes.length;i++) totes[i].style.display='none';
 			
 			//Genera un número aleatori i mostra el dibuix n
-			var n = Math.floor((Math.random()*notes.length));
+			var n=Math.floor((Math.random()*notes.length));
 			notes[n].style.display='';
 
-			//aquesta funcio retorna un string "solucio" que conté el nom de la nota
+			//valor de retorn: string amb el nom de la nota
 			var solucio = notes[n].getAttribute('nota');
 
 			//reprodueix el so de la nota a endevinar
+			Sons[notes[n].getAttribute('so')].pause();
 			Sons[notes[n].getAttribute('so')].play();
 
-			//necessitem 3 strings per posar a les solucions 
-			var nomsNotes = ['do','re','mi','fa','sol','la','si'];
-			var n = Math.floor((Math.random()*notes.length));
-
-			//randomitza els noms
-			nomsNotes = shuffle(nomsNotes);
+			//necessitem 3 strings per posar a les solucions: 2 aleatoris i la solucio
+			var nomsNotes = shuffle(['do','re','mi','fa','sol','la','si']);
+			var n=Math.floor((Math.random()*notes.length));
 
 			for(var i=1; i<4; i++) {
 				var opcio = nomsNotes.shift();
@@ -125,7 +124,6 @@
 
 		function tecla(event) {
 			var tecla=event.which;
-			//console.log("tecla: "+tecla);
 			switch(tecla) {
 				case 37: case 74: respon(1); break; //esque J
 				case 40: case 75: respon(2); break; //avall K
@@ -134,24 +132,29 @@
 		}
 
 		function mostraAmagaSolucio() {
-			if(document.getElementById('divsol').style.display=='none') {
-				document.getElementById('divsol').style.display=''
-			}
-			else {
-				document.getElementById('divsol').style.display='none'
-			}
+			var divsol=document.getElementById('divsol');
+			divsol.style.display = (divsol.style.display=='none') ? '' : 'none';
 			document.getElementById('puntuacio').innerHTML=0;
 		}
 	</script>
 	<style>
+		kbd {
+			display: inline-block;
+			margin: 0 .1em;
+			padding: .1em .6em;
+			font-family: Arial,"Helvetica Neue",Helvetica,sans-serif;
+			font-size: 11px;
+			line-height: 1.4;
+			color: #242729;
+			text-shadow: 0 1px 0 #FFF;
+			background-color: #e1e3e5;
+			border: 1px solid #adb3b9;
+			border-radius: 3px;
+			box-shadow: 0 1px 0 rgba(12,13,14,0.2), 0 0 0 2px #FFF inset;
+			white-space: nowrap;
+		}
 		body {
 			font-family:monospace;
-			text-align:center;
-		}
-		code{
-			background:#eee;
-			display:inline-block;
-			width:20px;
 			text-align:center;
 		}
 		.botonera {
@@ -178,6 +181,7 @@
 		.botonera button#solucio3 {border-radius:0 0.2em 0.2em 0 }
 	</style>
 </head><body onload="solucio=notaRandom()" onkeydown=tecla(event)>
+
 <h1 onclick=window.location.reload()>Practicar notes partitura</h1>
 
 <!--puntuacio-->
@@ -224,13 +228,21 @@
 	<button id=solucio3 onclick=respon(3)>carregant...</button>
 </div>
 
+<!--solucio-->
+<div style=margin-top:10px>
+	<button onclick=mostraAmagaSolucio() style="padding:10px 16px;outline:none">
+		Mostra la solució
+		<span style='display:none' id=divsol>: <span id=solucio></span></span>
+	</button>
+</div>
+
 <!--conf-->
 <table style=margin:auto;text-align:left>
 	<tr><td><label> <input type=checkbox checked onclick=Conf.clauSol=!Conf.clauSol> Clau de Sol </label>
 	<tr><td><label> <input type=checkbox         onclick=Conf.clauFa=!Conf.clauFa> Clau de Fa </label>
 </table>
 
-<!--teclat-->
+<!--teclat
 <div id=teclat>
 	<style>
 		#teclat {
@@ -268,16 +280,17 @@
 	<button onmouseenter=Sons.si2.play()>si</button>
 	<button onmouseenter=Sons.do3.play()>do</button>
 </div>
-
-<!--solucio-->
-<div>
-	<div style=margin-top:10px>
-		<button onclick=mostraAmagaSolucio() style="padding:10px 16px;outline:none">
-			Mostra la solució
-			<span style='display:none' id=divsol>: <span id=solucio></span></span>
-		</button>
-	</div>
-</div>
+-->
 
 <!--consell-->
-<p><b>Pro:</b> Prova de respondre amb les tecles <code>J</code>, <code>K</code>, <code>L</code></p>
+<p><b>Pro:</b> Prova de respondre amb les tecles <kbd>J</kbd>,<kbd>K</kbd>,<kbd>L</kbd></p>
+
+<!--footer-->
+<footer style=font-size:11px>
+	<p>
+		Creat per Lluís Mª Bosch
+	</p>
+	<p>
+		<a href=///github.com/holalluis/notesMusicals>Codi font</a>
+	</p>
+</footer>
